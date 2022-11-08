@@ -1,0 +1,66 @@
+# see: https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
+
+#prometheus:
+#  prometheusSpec:
+#    serviceMonitorSelectorNilUsesHelmValues: false
+#    serviceMonitorSelector: {}
+#    serviceMonitorNamespaceSelector: {}
+
+# how one would possibly define targets for Prometheus to scrape
+#prometheus:
+#  prometheusSpec:
+#    additionalScrapeConfigs:
+#      - job_name: openresty
+#        # see: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#kubernetes_sd_config
+#        kubernetes_sd_configs:
+#          - role: pod
+#        relabel_configs:
+#          - source_labels: [__meta_kubernetes_namespace]
+#            regex: wfi-(.*)
+#            replacement: $1
+#            action: keep
+#          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+#            regex: "true"
+#            action: keep
+#          - source_labels: [__meta_kubernetes_pod_ip]
+#            action: replace
+#            target_label: __address__
+#            regex: (.*)
+#            replacement: ${1}
+#            # SET LABEL namespace
+#          - source_labels: [__meta_kubernetes_namespace]
+#            target_label: namespace
+#            # SET LABEL app
+#          - source_labels: [__meta_kubernetes_pod_label_App]
+#            target_label: app
+
+grafana:
+  ingress:
+    enabled: true
+    path: /
+    ingress.hosts: grafana.kubernetes.docker.internal
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Loki
+        type: loki
+        url: http://loki:3100
+        access: proxy
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus-community-kube-prometheus.monitoring:9090/
+        access: proxy
+  adminUser: admin
+  adminPassword: a12sdf
+  dashboardsConfigMaps:
+    default: "grafana-dashboards"
+
+#alertmanager:
+#  config:
+#    receivers:
+#      - name: "null"  # Add this to your config as well
+#      - name: myotherreceiver
+#        webhook_configs:
+#          - send_resolved: true
+#            url: https://myurl
