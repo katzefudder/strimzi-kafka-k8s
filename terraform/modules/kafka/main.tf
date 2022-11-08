@@ -25,7 +25,7 @@ resource "kubernetes_manifest" "kafka-cluster" {
     "kind" = "Kafka"
     "metadata" = {
       "name" = "my-kafka-cluster"
-      "namespace" = "kafka"
+      "namespace" = kubernetes_namespace.kafka.metadata[0].name
     }
     "spec" = {
       "kafka" = {
